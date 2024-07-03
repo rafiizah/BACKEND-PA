@@ -7,6 +7,8 @@ use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Laravel\Lumen\Auth\Authorizable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
@@ -20,7 +22,9 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
      * @var string[]
      */
     protected $fillable = [
-        'name', 'email', 'password'
+        'email',
+        'password',
+        'role_id',
     ];
 
     /**
@@ -40,5 +44,15 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     public function getJWTCustomClaims()
     {
         return [];
+    }
+
+    public function role(): BelongsTo
+    {
+        return $this->belongsTo(Roles::class, 'role_id');
+    }
+
+    public function umkm()
+    {
+        return $this->hasOne('App\Models\umkm');
     }
 }

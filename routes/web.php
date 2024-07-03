@@ -1,7 +1,5 @@
 <?php
 
-
-
 /** @var \Laravel\Lumen\Routing\Router $router */
 
 
@@ -17,22 +15,73 @@
 |
 */
 
-$router->post('/clock-in', 'AbsensiController@clockIn');
+use Laravel\Lumen\Http\Request;
+use App\Http\Controllers\LumenAuthController;
+use OpenApi\Annotations\Get;
 
-//Information akun
-$router->get('/users',  'UserController@index');
-$router->get('/users/{id}', 'UserController@show');
-$router->post('/users', 'UserController@store');
-$router->put('/users/{id}', 'UserController@update');
-$router->delete('/users/{id}', 'UserController@destroy');
+$router->group(['prefix' => 'api', 'middleware' => 'cors',], function () use ($router) {
 
-//FAQ
-$router->get('/faq', 'FAQController@index');
-$router->get('/faq/{id}', 'FAQController@show');
-$router->post('/faq', 'FAQController@store');
-$router->put('/faq/{id}', 'FAQController@update');
-$router->delete('/faq/{id}', 'FAQController@destroy');
+    //umkm
+    $router->get('pemilik', 'pemilikController@index');
+    $router->post('pemilik', 'pemilikController@store');
+    $router->get('pemilik/{id}', 'pemilikController@show');
+    $router->post('pemilik/{id}', 'pemilikController@update');
+    $router->delete('pemilik/{id}', 'pemilikController@destroy');
 
-//ganti password
+    //chart umkm
+    $router->get('chart-data', 'GetDataChart@getDataForChart');
+    $router->get('chart-tahun', 'GetDataChart@getDataForTahunBerdiri');
+    $router->get('chart-jenis', 'GetDataChart@getDataForJenis');
 
-$router->put('/change-password', 'UserController@changePassword');
+    //chart asosiasi
+    $router->get('chart-dom-as', 'getDataChartAs@getDataChartAs');
+    $router->get('chart-tahun-as', 'getDataChartAs@getDataForTahunAs');
+    $router->get('chart-jumlah-as', 'getDataChartAs@getDataForJumlahAs');
+
+    //asosiasi  
+    $router->get('asosiasi', 'AsosiasiController@index');
+    $router->post('asosiasi', 'AsosiasiController@store');
+    $router->get('asosiasi/{id}', 'AsosiasiController@show');
+    $router->post('asosiasi/{id}', 'AsosiasiController@update');
+    $router->delete('asosiasi/{id}', 'AsosiasiController@destroy');
+
+    //get count UMKM
+    $router->get('/jumlah-umkm', 'pemilikController@hitungJumlahUMKM');
+    $router->get('/jumlah-user', 'UserController@countUsers');
+    $router->get('/jumlah-event', 'EventsController@hitungJumlahEvent');
+    $router->get('/jumlah-asosiasi', 'AsosiasiController@hitungJumlahAsosiasi');
+
+    //event
+    $router->get('event', 'EventsController@index');
+    $router->get('event/{id}', 'EventsController@show');
+    $router->post('event', 'EventsController@store');
+    $router->post('event/{id}', 'EventsController@update');
+    $router->delete('event/{id}', 'EventsController@destroy');
+
+
+    $router->post('login', 'LumenAuthController@login');
+    $router->post('logout', 'LumenAuthController@logout');
+    $router->post('refresh', 'LumenAuthController@refresh');
+    $router->post('me', 'LumenAuthController@me');
+
+    $router->get('/event-registrations', 'EventRegistrationController@index');
+    $router->post('/event-registrations', 'EventRegistrationController@register');
+
+    $router->post('/send-blast-email', 'EmailBlastingController@sendEmails');
+    $router->post('/umkm/create', 'UMKMController@create');
+
+
+
+    $router->group(['prefix' => 'umkmAsosiasi', 'name' => 'umkmAsosiasi'], function () use ($router) {
+        $router->get('/', ['as' => 'index', 'uses' => 'UmkmAsosiasiController@index']);
+        $router->get('/{id}', ['as' => 'read', 'uses' => 'UmkmAsosiasiController@read']);
+        $router->post('/create', ['as' => 'create', 'uses' => 'UmkmAsosiasiController@create']);
+        $router->post('/update/{id}', ['as' => 'update', 'uses' => 'UmkmAsosiasiController@update']);
+        $router->delete('/delete/{id}', ['as' => 'delete', 'uses' => 'UmkmAsosiasiController@delete']);
+    });
+});
+
+//verifikasi akun
+$router->post('verifikasi', 'WebController@verifikasi_email');
+
+//cru pemilik umkm

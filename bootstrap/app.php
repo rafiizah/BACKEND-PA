@@ -1,7 +1,5 @@
 <?php
 
-use SwaggerLume\ServiceProvider;
-
 require_once __DIR__ . '/../vendor/autoload.php';
 
 (new Laravel\Lumen\Bootstrap\LoadEnvironmentVariables(
@@ -21,15 +19,19 @@ date_default_timezone_set(env('APP_TIMEZONE', 'UTC'));
 |
 */
 
+// header('Access-Control-Allow-Origin:*');
+// header('Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, PATCH, DELETE');
+// header('Access-Control-Allow-Origin:*');
+// header('Access-Control-Allow-Headers:Content-Type, Authorization, X-Requested-With');
+
+
 $app = new Laravel\Lumen\Application(
     dirname(__DIR__)
 );
 
 $app->withFacades();
-$app->configure('swagger-lume');
-$app->register(ServiceProvider::class);
-
 $app->withEloquent();
+$app->configure('auth');
 
 /*
 |--------------------------------------------------------------------------
@@ -64,6 +66,10 @@ $app->singleton(
 */
 
 $app->configure('app');
+$app->configure('mail');
+$app->alias('mailer', Illuminate\Mail\Mailer::class);
+$app->alias('mailer', Illuminate\Contracts\Mail\Mailer::class);
+$app->alias('mailer', Illuminate\Contracts\Mail\MailQueue::class);
 
 /*
 |--------------------------------------------------------------------------
@@ -76,12 +82,15 @@ $app->configure('app');
 |
 */
 
-// $app->middleware([
-//     App\Http\Middleware\ExampleMiddleware::class
-// ]);
+$app->middleware([
+    App\Http\Middleware\CorsMiddleware::class, // Menggunakan middleware CORS
+]);
 
 $app->routeMiddleware([
     'auth' => App\Http\Middleware\Authenticate::class,
+    'cors' => App\Http\Middleware\CorsMiddleware::class,
+    'jwt.verify' => \App\Http\Middleware\VerifyJWTToken::class,
+    'role' => \App\Http\Middleware\RoleMiddleware::class,
 ]);
 
 /*
@@ -95,11 +104,14 @@ $app->routeMiddleware([
 |
 */
 
-$app->register(App\Providers\AppServiceProvider::class);
+//$app->register(App\Providers\AppServiceProvider::class);
 $app->register(App\Providers\AuthServiceProvider::class);
-$app->register(App\Providers\EventServiceProvider::class);
+$app->register(\Illuminate\Mail\MailServiceProvider::class);
+$app->register(App\Providers\AppServiceProvider::class);
+// $app->register(App\Providers\EventServiceProvider::class);
 $app->register(Tymon\JWTAuth\Providers\LumenServiceProvider::class);
-$app->register(Flipbox\LumenGenerator\LumenGeneratorServiceProvider::class);
+$app->register(App\Providers\CatchAllOptionsRequestsProvider::class);
+$app->register(Illuminate\Validation\ValidationServiceProvider::class);
 
 /*
 |--------------------------------------------------------------------------

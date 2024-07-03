@@ -8,7 +8,10 @@
         "php": "^8.1",
         "darkaonline/swagger-lume": "10.*",
         "flipbox/lumen-generator": "^9.2",
+        "illuminate/mail": "^10.48",
+        "laravel/helpers": "^1.7",
         "laravel/lumen-framework": "^10.0",
+        "laravel/ui": "^4.5",
         "symfony/psr-http-message-bridge": "^2.3",
         "tymon/jwt-auth": "*",
         "zircote/swagger-php": "3.*"
@@ -31,6 +34,7 @@
         }
     },
     "scripts": {
+        "start": "serve -s build",
         "post-root-package-install": [
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
         ]
